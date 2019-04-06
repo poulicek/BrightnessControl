@@ -1,0 +1,8 @@
+*.dll
+*.pdb
+*.vs
+*.suo
+bin
+obj
+Debug
+Release
