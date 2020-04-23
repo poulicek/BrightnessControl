@@ -292,7 +292,8 @@ namespace BrightnessControl
 
         private void onAbout(object sender, EventArgs e)
         {
-            Process.Start(new ProcessStartInfo("http://www.bitit.cz/#projects"));
+            Process.Start(new ProcessStartInfo("https://github.com/poulicek/BrightnessControl"));
+            //Process.Start(new ProcessStartInfo("https://bitit.cz/#projects"));
         }
 
         private void onMenuExit(object sender, EventArgs e)
