@@ -30,9 +30,9 @@ namespace BrightnessControl
         /// </summary>
         private Icon getIcon(int brightness = 100)
         {
-            var darkMode = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", true)?.GetValue("SystemUsesLightTheme") as int? == 0;
+            var lightMode = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", true)?.GetValue("SystemUsesLightTheme") as int? == 1;
 
-            using (var s = Assembly.GetExecutingAssembly().GetManifestResourceStream(darkMode ? "BrightnessControl.IconDark.png" : "BrightnessControl.IconLight.png"))
+            using (var s = Assembly.GetExecutingAssembly().GetManifestResourceStream(lightMode ? "BrightnessControl.IconLight.png" : "BrightnessControl.IconDark.png"))
             using (var bmp = this.makeBitmapPartlyTransparent(new Bitmap(s), brightness / 100f))
                 return Icon.FromHandle(bmp.GetHicon());
         }
@@ -104,7 +104,7 @@ namespace BrightnessControl
         private void setBrightness(int level)
         {
             this.brightness.SetBrightness(level);
-            this.updateLook(level);
+            this.updateLook(this.brightness.CurrentValue);
         }
 
 

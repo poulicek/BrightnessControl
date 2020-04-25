@@ -90,6 +90,7 @@ namespace BrightnessControl.Driver
         /// </summary>
         private int convertBrightnessValue(int b)
         {
+            return b;
             return (int)Math.Ceiling(100 * b / 48.0);
         }
 
