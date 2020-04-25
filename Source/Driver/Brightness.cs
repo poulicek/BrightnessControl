@@ -21,7 +21,7 @@ namespace BrightnessControl.Driver
         /// <summary>
         /// Returns the current brightness value
         /// </summary>
-        public int CurrentValue { get; private set; }
+        public int CurrentValue { get { return this.getCurrentValue(); } }
 
 
         /// <summary>
@@ -35,22 +35,21 @@ namespace BrightnessControl.Driver
         {
             this.wmiDriver.BrightnessChanged += (level) => this.BrightnessChanged?.Invoke(level);
             this.capabilities = this.getCapabilities();
-            this.CurrentValue = this.getInitialValue();
         }
 
 
         /// <summary>
         /// Returns the initial value
         /// </summary>
-        private int getInitialValue()
+        private int getCurrentValue()
         {
-            var value = this.capabilities.Current;
+            var value = this.getCapabilities().Current;
             return value <= 0 ? this.wmiDriver.GetBrightness() : value;
         }
 
 
         /// <summary>
-        /// Returns the capabilitie sof the monitor
+        /// Returns the capabilities of the monitor
         /// </summary>
         private MonitorInfo getCapabilities()
         {
@@ -75,7 +74,6 @@ namespace BrightnessControl.Driver
         {
             try
             {
-                this.CurrentValue = brightness;
                 using (var monitors = new Monitors())
                     foreach (NativeStructures.PHYSICAL_MONITOR m in monitors)
                         NativeCalls.SetMonitorBrightness(m.hPhysicalMonitor, (short)brightness);
