@@ -229,6 +229,9 @@ namespace BrightnessControl
         {
             await Task.Delay(500);
             this.updateLook(this.brightness.CurrentValue);
+
+            await Task.Delay(1000);
+            this.updateLook(this.brightness.CurrentValue);
         }
 
 
