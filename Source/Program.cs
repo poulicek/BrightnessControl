@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using BrightnessControl.UI;
 
 namespace BrightnessControl
 {
