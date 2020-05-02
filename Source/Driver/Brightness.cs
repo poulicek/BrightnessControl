@@ -43,8 +43,11 @@ namespace BrightnessControl.Driver
         /// </summary>
         private int getCurrentValue()
         {
-            var value = this.getCapabilities().Current;
-            return value <= 0 ? this.wmiDriver.GetBrightness() : value;
+            var value = (int)this.getCapabilities().Current;
+            if (value <= 0)
+                value = this.wmiDriver.GetBrightness();
+
+            return Math.Min(100, Math.Max(value, 0));
         }
 
 

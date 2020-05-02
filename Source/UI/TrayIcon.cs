@@ -174,7 +174,7 @@ namespace BrightnessControl.UI
                 if (cycle && levels.Length > 0)
                     this.setBrightness(levels[0]);
                 else
-                    this.setBrightness(this.brightness.CurrentValue);
+                    this.setBrightness(value);
 
             }
             else
@@ -193,7 +193,7 @@ namespace BrightnessControl.UI
                 if (cycle && levels.Length > 0)
                     this.setBrightness(levels[levels.Length - 1]);
                 else
-                    this.setBrightness(this.brightness.CurrentValue);
+                    this.setBrightness(value);
             }
         }
 

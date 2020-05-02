@@ -51,15 +51,12 @@ namespace BrightnessControl.Driver
 
         [DllImport("dxva2.dll", EntryPoint = "GetMonitorBrightness", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetMonitorBrightness(
-            IntPtr hMonitor, ref short pdwMinimumBrightness, ref short pdwCurrentBrightness, ref short pdwMaximumBrightness);
+        public static extern bool GetMonitorBrightness(IntPtr hMonitor, ref short pdwMinimumBrightness, ref short pdwCurrentBrightness, ref short pdwMaximumBrightness);
 
         [DllImport("user32.dll")]
-        public static extern int SendMessage(
-            int hWnd, int hMsg, int wParam, int lParam);
+        public static extern int SendMessage(int hWnd, int hMsg, int wParam, int lParam);
 
-        public delegate bool MonitorEnumDelegate(IntPtr hMonitor, IntPtr hdcMonitor,
-            ref RECT lprcMonitor, IntPtr dwData);
+        public delegate bool MonitorEnumDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData);
 
         /// <returns></returns>
         [DllImport("user32.dll")]
