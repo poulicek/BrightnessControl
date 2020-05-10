@@ -99,27 +99,24 @@ namespace BrightnessControl.UI
         /// <summary>
         /// Creates the context menu
         /// </summary>
-        protected override ContextMenu createContextMenu()
+        protected override List<MenuItem> getMenuItems()
         {
-            var trayMenu = new ContextMenu();
+            this.loadBrightnessLevels();
 
-            this.loadBrightnessLevels(trayMenu);
+            var items = new List<MenuItem>(this.levelButtons.Values);
+            items.Add(new MenuItem("-"));
+            items.Add(new MenuItem("Turn off screen", this.onScreenTurnOffClick));
+            items.Add(new MenuItem("-"));
+            items.AddRange(base.getMenuItems());
 
-            trayMenu.MenuItems.Add("-");
-            trayMenu.MenuItems.Add("Turn off screen", this.onScreenTurnOffClick);
-            trayMenu.MenuItems.Add("-");
-            trayMenu.MenuItems.Add("Start with Windows", this.onStartUpClick).Checked = this.startsWithWindows();
-            trayMenu.MenuItems.Add("About...", this.onAboutClick);
-            trayMenu.MenuItems.Add("Exit", this.onMenuExitClick);
-
-            return trayMenu;
+            return items;
         }
 
 
         /// <summary>
         /// Loads the brightness levels according to the capabilities
         /// </summary>
-        private void loadBrightnessLevels(ContextMenu trayMenu)
+        private void loadBrightnessLevels()
         {
             this.levelButtons.Clear();
 
@@ -128,7 +125,7 @@ namespace BrightnessControl.UI
             for (int i = levels.Length - 1; i >= 0; i--)
             {
                 var level = levels[i];
-                var btn = trayMenu.MenuItems.Add(levels[i] + "%", onBrightnessLevel);
+                var btn = new MenuItem(levels[i] + "%", onBrightnessLevel);
                 btn.Checked = level == value;
 
                 this.levelButtons[level] = btn;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace BrightnessControl.Driver
 {
@@ -122,7 +123,21 @@ namespace BrightnessControl.Driver
         /// </summary>
         public void TurnOff()
         {
-            NativeCalls.SendMessage(0xFFFF, 0x112, 0xF170, 2);
+            try
+            {
+                var t = new Thread(() =>
+                {
+                    try
+                    {
+                        NativeCalls.SendMessage(0xFFFF, 0x112, 0xF170, 2);
+                    }
+                    catch { }
+                });
+                t.Start();
+                Thread.Sleep(500);
+                t.Abort();
+            }
+            catch { }
         }
 
 
