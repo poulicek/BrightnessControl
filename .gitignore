@@ -2,8 +2,10 @@
 *.pdb
 *.vs
 *.suo
+*.user
 bin
 obj
 Debug
 Release
-Source/BrightnessControl.csproj.user
+Package/AppPackages/
+Package/BundleArtifacts/
