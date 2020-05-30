@@ -43,6 +43,10 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Common\bin\Debug\Common.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
@@ -55,10 +59,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Common\TrayIconBase.cs">
-      <Link>UI\TrayIconBase.cs</Link>
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Driver\Brightness.cs" />
     <Compile Include="Driver\Monitors.cs" />
     <Compile Include="Driver\Native.cs" />
@@ -70,6 +70,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\Common\bin\Release\Common.dll">
+      <Link>Resources\Common.dll</Link>
+    </EmbeddedResource>
     <Content Include="Resources\AppIcon.ico" />
     <EmbeddedResource Include="Resources\IconLight.png" />
     <EmbeddedResource Include="Resources\IconDark.png" />
