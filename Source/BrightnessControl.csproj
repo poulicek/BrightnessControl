@@ -43,9 +43,8 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Common\bin\Debug\Common.dll</HintPath>
+    <Reference Include="Common">
+      <HintPath>..\..\Common\bin\Release\Common.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -70,9 +69,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\..\Common\bin\Release\Common.dll">
-      <Link>Resources\Common.dll</Link>
-    </EmbeddedResource>
     <Content Include="Resources\AppIcon.ico" />
     <EmbeddedResource Include="Resources\IconLight.png" />
     <EmbeddedResource Include="Resources\IconDark.png" />
