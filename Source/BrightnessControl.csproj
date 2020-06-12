@@ -53,9 +53,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="TrayToolkit">
-      <HintPath>..\..\TrayToolkit\Build\TrayToolkit.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Driver\Brightness.cs" />
@@ -72,6 +69,12 @@
     <Content Include="Resources\AppIcon.ico" />
     <EmbeddedResource Include="Resources\IconLight.png" />
     <EmbeddedResource Include="Resources\IconDark.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TrayToolkit\Source\TrayToolkit.csproj">
+      <Project>{855e79ef-1e63-4a3e-953e-3b5dc52ebd4c}</Project>
+      <Name>TrayToolkit</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
