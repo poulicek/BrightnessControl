@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using BrightnessControl.Driver;
-using Common;
+using TrayToolkit;
 
 namespace BrightnessControl.UI
 {
