@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using BrightnessControl.Driver;
-using TrayToolkit;
+using TrayToolkit.UI;
 
 namespace BrightnessControl.UI
 {
@@ -99,7 +99,7 @@ namespace BrightnessControl.UI
         /// <summary>
         /// Creates the context menu
         /// </summary>
-        protected override List<MenuItem> getMenuItems()
+        protected override List<MenuItem> getContextMenuItems()
         {
             this.loadBrightnessLevels();
 
@@ -107,7 +107,7 @@ namespace BrightnessControl.UI
             items.Add(new MenuItem("-"));
             items.Add(new MenuItem("Turn off screen", this.onScreenTurnOffClick));
             items.Add(new MenuItem("-"));
-            items.AddRange(base.getMenuItems());
+            items.AddRange(base.getContextMenuItems());
 
             return items;
         }
