@@ -90,7 +90,7 @@ namespace BrightnessControl.UI
 
             if (this.brightnessValue >= 0)
             {
-                this.trayIcon.Text = brightnessValue + "% - Brightness Control";
+                this.setTitle($"Brightness Control - {brightnessValue}%");
                 base.updateLook();
             }
         }
