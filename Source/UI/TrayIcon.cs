@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using BrightnessControl.Driver;
+using TrayToolkit.IO.Screen;
 using TrayToolkit.UI;
 
 namespace BrightnessControl.UI
@@ -121,7 +121,7 @@ namespace BrightnessControl.UI
             this.levelButtons.Clear();
 
             var value = this.brightness.CurrentValue;
-            var levels = this.brightness.GetDefaultLevels();
+            var levels = this.brightness.GetBrightnessLevels();
             for (int i = levels.Length - 1; i >= 0; i--)
             {
                 var level = levels[i];
@@ -152,7 +152,7 @@ namespace BrightnessControl.UI
         private void switchBrightness(bool forward, bool cycle = false)
         {
             var value = this.brightness.CurrentValue;
-            var levels = this.brightness.GetDefaultLevels();
+            var levels = this.brightness.GetBrightnessLevels();
 
 
             if (forward)

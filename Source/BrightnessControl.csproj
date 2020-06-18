@@ -55,10 +55,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Driver\Brightness.cs" />
-    <Compile Include="Driver\Monitors.cs" />
-    <Compile Include="Driver\Native.cs" />
-    <Compile Include="Driver\WMI.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\TrayIcon.cs">
