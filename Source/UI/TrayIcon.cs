@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using TrayToolkit.IO.Screen;
+using TrayToolkit.Helpers;
+using TrayToolkit.IO.Display;
 using TrayToolkit.UI;
 
 namespace BrightnessControl.UI
@@ -11,7 +12,7 @@ namespace BrightnessControl.UI
     class TrayIcon : TrayIconBase
     {
         private int brightnessValue;
-        private Brightness brightness;
+        private DisplayContoller brightness;
         private readonly Dictionary<int, MenuItem> levelButtons = new Dictionary<int, MenuItem>();
 
 
@@ -23,7 +24,7 @@ namespace BrightnessControl.UI
 
         protected override void OnLoad(EventArgs e)
         {
-            this.brightness = new Brightness();
+            this.brightness = new DisplayContoller();
             this.brightness.BrightnessChanged += this.onBrightnessChanged;
             this.brightnessValue = this.brightness.CurrentValue;
 
@@ -48,33 +49,33 @@ namespace BrightnessControl.UI
 
         protected override Icon getIconFromBitmap(Bitmap bmp)
         {
-            return base.getIconFromBitmap(this.makeBitmapPartlyTransparent(bmp, this.brightnessValue / 100f));
+            return base.getIconFromBitmap(this.adjustIconLook(bmp, this.brightnessValue / 100f));
         }
 
 
         /// <summary>
         /// Makes the bitmap partly transparent by given percantage
         /// </summary>
-        private Bitmap makeBitmapPartlyTransparent(Bitmap src, float percentage = 1, int opacity = 255)
+        private Bitmap adjustIconLook(Bitmap src, float percentage = 1)
         {
-            if (percentage >= 1)
-                return src;
+            if (percentage > 1)
+                percentage = 1;
 
-            var dst = new Bitmap(src.Width, src.Height);
-            using (var g = Graphics.FromImage(dst))
-            using (var ia = new ImageAttributes())
+            var shapeSize = 57;
+            var shapeRect = new Rectangle((src.Width - shapeSize) / 2, (src.Height - shapeSize) / 2, shapeSize, shapeSize);
+            
+            using (var g = Graphics.FromImage(src))
+            using (var b = new SolidBrush(src.GetPixel(src.Width / 2, 2)))
+            using (var p = new Pen(b.Color, 5))
             {
-                var y = (int)(src.Height * (1 - percentage));
-                var rect1 = new Rectangle(0, 0, src.Width, src.Height);
-                var rect2 = new Rectangle(0, y, src.Width, src.Height - y);
-
-                ia.SetColorMatrix(new ColorMatrix() { Matrix33 = 0.6f });
-                g.DrawImage(src, rect1, rect1.X, rect1.Y, rect1.Width, rect1.Height, GraphicsUnit.Pixel, ia);
-                g.DrawImage(src, rect2, rect2.X, rect2.Y, rect2.Width, rect2.Height, GraphicsUnit.Pixel);
-                src.Dispose();
+                g.SetHighQuality();
+                g.DrawEllipse(p, shapeRect);
+                shapeRect.Inflate(-10, -10);
+                g.SetClip(new Rectangle(shapeRect.Left, 0, (int)(percentage * shapeRect.Width), src.Height));
+                g.FillEllipse(b, shapeRect);
             }
 
-            return dst;
+            return src;
         }
 
 
@@ -83,16 +84,15 @@ namespace BrightnessControl.UI
         /// </summary>
         protected override void updateLook()
         {
-            this.brightnessValue = this.brightness.CurrentValue;
+            this.brightnessValue = this.brightness?.CurrentValue ?? -1;
 
             foreach (var btn in this.levelButtons)
                 btn.Value.Checked = btn.Key == this.brightnessValue;
 
             if (this.brightnessValue >= 0)
-            {
                 this.setTitle($"Brightness Control - {brightnessValue}%");
-                base.updateLook();
-            }
+                
+            base.updateLook();
         }
 
 

@@ -37,7 +37,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\TrayIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
@@ -62,9 +62,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\AppIcon.ico" />
-    <EmbeddedResource Include="Resources\IconLight.png" />
+    <Content Include="Resources\TrayIcon.ico" />
     <EmbeddedResource Include="Resources\IconDark.png" />
+    <EmbeddedResource Include="Resources\IconLight.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TrayToolkit\Source\TrayToolkit.csproj">
