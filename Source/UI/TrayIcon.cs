@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
 using TrayToolkit.Helpers;
-using TrayToolkit.IO.Display;
+using TrayToolkit.OS.Display;
 using TrayToolkit.UI;
 
 namespace BrightnessControl.UI
@@ -12,7 +11,7 @@ namespace BrightnessControl.UI
     class TrayIcon : TrayIconBase
     {
         private int brightnessValue;
-        private DisplayContoller brightness;
+        private DisplayController brightness;
         private readonly Dictionary<int, MenuItem> levelButtons = new Dictionary<int, MenuItem>();
 
 
