@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
 using TrayToolkit.Helpers;
-using TrayToolkit.IO.Display;
+using TrayToolkit.OS.Display;
 using TrayToolkit.UI;
 
 namespace BrightnessControl.UI
