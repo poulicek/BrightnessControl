@@ -12,7 +12,7 @@ namespace BrightnessControl.UI
     class TrayIcon : TrayIconBase
     {
         private int brightnessValue;
-        private DisplayContoller brightness;
+        private DisplayController brightness;
         private readonly Dictionary<int, MenuItem> levelButtons = new Dictionary<int, MenuItem>();
 
 
@@ -24,7 +24,7 @@ namespace BrightnessControl.UI
 
         protected override void OnLoad(EventArgs e)
         {
-            this.brightness = new DisplayContoller();
+            this.brightness = new DisplayController();
             this.brightness.BrightnessChanged += this.onBrightnessChanged;
             this.brightnessValue = this.brightness.CurrentValue;
 
