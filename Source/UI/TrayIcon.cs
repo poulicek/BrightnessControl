@@ -106,7 +106,7 @@ namespace BrightnessControl.UI
             items.Add(new MenuItem("-"));
             items.Add(new MenuItem("Turn off screen", this.onScreenTurnOffClick));
             items.Add(new MenuItem("-"));
-            items.AddRange(base.getContextMenuItems());
+            items.AddRange(base.getContextMenuItems(false));
 
             return items;
         }
