@@ -9,7 +9,7 @@
   <Identity
     Name="BitIT.4705110ADA765"
     Publisher="CN=69ECAD3B-51D0-4E2F-A782-44F151CEECBE"
-    Version="1.0.0.0" />
+    Version="1.0.1.0" />
 
   <Properties>
     <DisplayName>BrightnessControl</DisplayName>
@@ -31,12 +31,12 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Birghtness Control"
-        Description="A tray icon which lets you control brightiness of your laptop or desktop monitor by a single click."
+        DisplayName="Brightness Control"
+        Description="A tray icon which lets you control brightness of your laptop or desktop monitor by a single click."
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" />
+        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png"  Square71x71Logo="Images\SmallTile.png" Square310x310Logo="Images\LargeTile.png"/>
         <uap:SplashScreen Image="Images\SplashScreen.png" />
       </uap:VisualElements>
     </Application>

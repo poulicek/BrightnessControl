@@ -368,6 +368,7 @@
   </ProductReservedInfo>
   <AccountPackageIdentityNames>
     <MainPackageIdentityName>BitIT.Lockey</MainPackageIdentityName>
+    <MainPackageIdentityName>BitIT.SimpleRemoteControl</MainPackageIdentityName>
   </AccountPackageIdentityNames>
   <PackageInfoList LandingUrl="https://developer.microsoft.com/dashboard/Application?appId=9PPSVWJ4Z4QZ" />
 </StoreAssociation>
