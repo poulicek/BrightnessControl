@@ -10,7 +10,7 @@
   <Identity
     Name="BitIT.4705110ADA765"
     Publisher="CN=69ECAD3B-51D0-4E2F-A782-44F151CEECBE"
-    Version="1.0.1.0" />
+    Version="1.1.0.0" />
 
   <Properties>
     <DisplayName>BrightnessControl</DisplayName>
@@ -43,7 +43,7 @@
 
       <Extensions>
         <uap5:Extension Category="windows.startupTask">
-          <uap5:StartupTask TaskId="BrightnessControl" Enabled="true" DisplayName="BrightnessControlStartUp" />
+          <uap5:StartupTask TaskId="BrightnessControl" Enabled="true" DisplayName="Brightness Control" />
         </uap5:Extension>
       </Extensions>
       
