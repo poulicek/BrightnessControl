@@ -3,6 +3,6 @@
 
 # BrightnessControl
 
-Tiny tray icon app enabling you to control brightness of your screen. Ideal for desktops and while working at night when the only option to regulate the brightness is to use the buttons on the screen. The screen must have DDC protocol enabled (most modern screens do).
+Tiny tray icon app enabling you to control brightness of your screen. Ideal for desktops while working at night when the only option to control the brightness is to use the buttons on the monitor. The monitor must have DDC protocol enabled (most modern monitors have).
 
 ![Brightness Control](https://raw.githubusercontent.com/poulicek/BrightnessControl/master/Resources/menu2.png)
