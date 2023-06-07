@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Deployment.Application;
+using System.Diagnostics;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
+using Microsoft.Toolkit.Uwp.Notifications;
 using TrayToolkit.Helpers;
 using TrayToolkit.OS.Display;
+using TrayToolkit.OS.Input;
 using TrayToolkit.UI;
 
 namespace BrightnessControl.UI
@@ -11,12 +16,14 @@ namespace BrightnessControl.UI
     class TrayIcon : TrayIconBase
     {
         private int brightnessValue;
+        private InputListener input = new InputListener();
         private DisplayController brightness;
         private readonly Dictionary<int, MenuItem> levelButtons = new Dictionary<int, MenuItem>();
 
 
         public TrayIcon() : base("Brightness Control", "https://github.com/poulicek/BrightnessControl")
         {
+            this.input.MouseWheel += this.onMouseWheel;
         }
 
         #region UI
@@ -27,13 +34,26 @@ namespace BrightnessControl.UI
             this.brightness.BrightnessChanged += this.onBrightnessChanged;
             this.brightnessValue = this.brightness.CurrentValue;
 
+            this.input.Listen(true, false);
+
             base.OnLoad(e);
+
+            if (!ApplicationDeployment.IsNetworkDeployed || ApplicationDeployment.CurrentDeployment.IsFirstRun)
+            {
+                new ToastContentBuilder()
+                    .AddText("Use mouse wheel over the app icon to adjust screen brightness.")
+                    .AddText("Make sure your monitor has DDC/CI enabled.")
+                    .Show();
+            }
         }
 
         protected override void Dispose(bool isDisposing)
         {
             if (isDisposing)
+            {
                 this.brightness.Dispose();
+                this.input.Dispose();
+            }
 
             base.Dispose(isDisposing);
         }
@@ -216,7 +236,6 @@ namespace BrightnessControl.UI
             this.brightness.TurnOff();
         }
 
-
         private void onBrightnessLevel(object sender, EventArgs e)
         {
             var btn = (sender as MenuItem);
@@ -224,6 +243,15 @@ namespace BrightnessControl.UI
 
             if (short.TryParse(btn.Text.TrimEnd('%'), out level))
                 this.setBrightness(level);
+        }
+
+        private void onMouseWheel(Point mousePosition, int val)
+        {
+            if (!IconBounds.Contains(mousePosition))
+                return;
+
+            ThreadingHelper.DoAsync(() =>
+                this.brightness.SetBrightness(this.brightness.CurrentValue + Math.Sign(val) * 10));
         }
 
         #endregion

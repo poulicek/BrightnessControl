@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30011.22
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightnessControl", "BrightnessControl.csproj", "{76AF7ACC-927F-436F-82C2-41E7C629527C}"
 EndProject
@@ -44,8 +44,6 @@ Global
 		{76AF7ACC-927F-436F-82C2-41E7C629527C}.Release|x86.ActiveCfg = Release|Any CPU
 		{76AF7ACC-927F-436F-82C2-41E7C629527C}.Release|x86.Build.0 = Release|Any CPU
 		{B75C8077-6239-47A0-91A2-71949E410B1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B75C8077-6239-47A0-91A2-71949E410B1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B75C8077-6239-47A0-91A2-71949E410B1C}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{B75C8077-6239-47A0-91A2-71949E410B1C}.Debug|ARM.ActiveCfg = Debug|ARM
 		{B75C8077-6239-47A0-91A2-71949E410B1C}.Debug|ARM.Build.0 = Debug|ARM
 		{B75C8077-6239-47A0-91A2-71949E410B1C}.Debug|ARM.Deploy.0 = Debug|ARM
