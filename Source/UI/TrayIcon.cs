@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Deployment.Application;
-using System.Diagnostics;
 using System.Drawing;
-using System.Reflection;
 using System.Windows.Forms;
-using Microsoft.Toolkit.Uwp.Notifications;
 using TrayToolkit.Helpers;
 using TrayToolkit.OS.Display;
 using TrayToolkit.OS.Input;
@@ -40,10 +37,10 @@ namespace BrightnessControl.UI
 
             if (!ApplicationDeployment.IsNetworkDeployed || ApplicationDeployment.CurrentDeployment.IsFirstRun)
             {
-                new ToastContentBuilder()
-                    .AddText("Use mouse wheel over the app icon to adjust screen brightness.")
-                    .AddText("Make sure your monitor has DDC/CI enabled.")
-                    .Show();
+                BalloonTooltip.Show("Brightness Control",
+                    ResourceHelper.GetResourceImage("Resources.Icon.png"),
+                    $"Use mouse wheel over the app icon to adjust screen brightness.{Environment.NewLine}" +
+                    $"(Make sure your monitor has DDC/CI enabled.)");
             }
         }
 

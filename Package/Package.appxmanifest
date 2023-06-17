@@ -9,8 +9,8 @@
 
   <Identity
     Name="BitIT.4705110ADA765"
-    Publisher="CN=69ECAD3B-51D0-4E2F-A782-44F151CEECBE"
-    Version="1.1.0.0" />
+    Publisher="CN=BitIT"
+    Version="1.2.2.0" />
 
   <Properties>
     <DisplayName>BrightnessControl</DisplayName>
@@ -34,11 +34,11 @@
       <uap:VisualElements
         DisplayName="Brightness Control"
         Description="A tray icon which lets you control brightness of your laptop or desktop monitor by a single click."
-        BackgroundColor="transparent"
+        BackgroundColor="#173E66"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">
         <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png"  Square71x71Logo="Images\SmallTile.png" Square310x310Logo="Images\LargeTile.png"/>
-        <uap:SplashScreen Image="Images\SplashScreen.png" />
+        <uap:SplashScreen Image="Images\SplashScreen.png"  BackgroundColor="#173E66"/>
       </uap:VisualElements>
 
       <Extensions>

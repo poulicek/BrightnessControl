@@ -64,6 +64,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Icon.png" />
     <Content Include="Resources\TrayIcon.ico" />
     <EmbeddedResource Include="Resources\IconDark.png" />
     <EmbeddedResource Include="Resources\IconLight.png" />
@@ -73,11 +74,6 @@
       <Project>{855e79ef-1e63-4a3e-953e-3b5dc52ebd4c}</Project>
       <Name>TrayToolkit</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
-      <Version>7.1.3</Version>
-    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
