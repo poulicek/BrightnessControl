@@ -9,8 +9,8 @@
 
   <Identity
     Name="BitIT.4705110ADA765"
-    Publisher="CN=BitIT"
-    Version="1.2.2.0" />
+    Publisher="CN=69ECAD3B-51D0-4E2F-A782-44F151CEECBE"
+    Version="1.2.3.0" />
 
   <Properties>
     <DisplayName>BrightnessControl</DisplayName>
