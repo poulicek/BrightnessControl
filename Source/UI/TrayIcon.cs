@@ -35,7 +35,13 @@ namespace BrightnessControl.UI
 
             base.OnLoad(e);
 
-            if (!ApplicationDeployment.IsNetworkDeployed || ApplicationDeployment.CurrentDeployment.IsFirstRun)
+
+            var displayToolTip = ApplicationDeployment.IsNetworkDeployed && ApplicationDeployment.CurrentDeployment.IsFirstRun;
+#if DEBUG
+            displayToolTip = true;
+#endif
+
+            if (displayToolTip)
             {
                 BalloonTooltip.Show("Brightness Control",
                     ResourceHelper.GetResourceImage("Resources.Icon.png"),
@@ -148,9 +154,9 @@ namespace BrightnessControl.UI
             }
         }
 
-        #endregion
+#endregion
 
-        #region Actions
+#region Actions
 
         /// <summary>
         /// Setting the brightness level
@@ -211,9 +217,9 @@ namespace BrightnessControl.UI
         }
 
 
-        #endregion
+#endregion
 
-        #region Event Handlers
+#region Event Handlers
 
         protected override void onTrayIconClick(object sender, MouseEventArgs e)
         {
@@ -251,6 +257,6 @@ namespace BrightnessControl.UI
                 this.brightness.SetBrightness(this.brightness.CurrentValue + Math.Sign(val) * 10));
         }
 
-        #endregion
+#endregion
     }
 }
