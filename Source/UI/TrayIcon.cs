@@ -35,19 +35,20 @@ namespace BrightnessControl.UI
 
             base.OnLoad(e);
 
-
-            var displayToolTip = ApplicationDeployment.IsNetworkDeployed && ApplicationDeployment.CurrentDeployment.IsFirstRun;
-#if DEBUG
-            displayToolTip = true;
-#endif
-
-            if (displayToolTip)
-            {
-                BalloonTooltip.Show("Brightness Control",
-                    ResourceHelper.GetResourceImage("Resources.Icon.png"),
-                    $"Use mouse wheel over the app icon to adjust screen brightness.{Environment.NewLine}" +
-                    $"(Make sure your monitor has DDC/CI enabled.)");
-            }
+            // The following code doesn't work realiably. After publishing to store, the app shows the tooltip with every launch.
+            //
+            //            var displayToolTip = ApplicationDeployment.IsNetworkDeployed && ApplicationDeployment.CurrentDeployment.IsFirstRun;
+            //#if DEBUG
+            //            displayToolTip = true;
+            //#endif
+            //
+            //            if (displayToolTip)
+            //            {
+            //                BalloonTooltip.Show("Brightness Control",
+            //                    ResourceHelper.GetResourceImage("Resources.Icon.png"),
+            //                    $"Use mouse wheel over the app icon to adjust screen brightness.{Environment.NewLine}" +
+            //                    $"(Make sure your monitor has DDC/CI enabled.)");
+            //            }
         }
 
         protected override void Dispose(bool isDisposing)
