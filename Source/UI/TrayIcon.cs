@@ -13,6 +13,7 @@ namespace BrightnessControl.UI
     class TrayIcon : TrayIconBase
     {
         private int brightnessValue;
+        private bool settingBrightness;
         private InputListener input = new InputListener();
         private DisplayController brightness;
         private readonly Dictionary<int, MenuItem> levelButtons = new Dictionary<int, MenuItem>();
@@ -86,7 +87,7 @@ namespace BrightnessControl.UI
 
             var shapeSize = 57;
             var shapeRect = new Rectangle((src.Width - shapeSize) / 2, (src.Height - shapeSize) / 2, shapeSize, shapeSize);
-            
+
             using (var g = Graphics.FromImage(src))
             using (var b = new SolidBrush(src.GetPixel(src.Width / 2, 2)))
             using (var p = new Pen(b.Color, 5))
@@ -114,7 +115,7 @@ namespace BrightnessControl.UI
 
             if (this.brightnessValue >= 0)
                 this.setTitle($"Brightness Control - {brightnessValue}%");
-                
+
             base.updateLook();
         }
 
@@ -155,24 +156,38 @@ namespace BrightnessControl.UI
             }
         }
 
-#endregion
+        #endregion
 
-#region Actions
+        #region Actions
 
         /// <summary>
         /// Setting the brightness level
         /// </summary>
         private void setBrightness(int level)
         {
-            this.brightness.SetBrightness(level);
-            this.updateLook();
+            try
+            {
+                if (settingBrightness)
+                    return;
+
+                this.settingBrightness = true;
+                lock (this.brightness)
+                {
+                    this.brightness.SetBrightness(level);
+                    this.updateLook();
+                }
+            }
+            finally
+            {
+                this.settingBrightness = false;
+            }
         }
 
 
         /// <summary>
         /// Switches the brightness
         /// </summary>
-        private void switchBrightness(bool forward, bool cycle = false)
+            private void switchBrightness(bool forward, bool cycle = false)
         {
             var value = this.brightness.CurrentValue;
             var levels = this.brightness.GetBrightnessLevels();
@@ -218,9 +233,9 @@ namespace BrightnessControl.UI
         }
 
 
-#endregion
+        #endregion
 
-#region Event Handlers
+        #region Event Handlers
 
         protected override void onTrayIconClick(object sender, MouseEventArgs e)
         {
@@ -255,7 +270,9 @@ namespace BrightnessControl.UI
                 return;
 
             ThreadingHelper.DoAsync(() =>
-                this.brightness.SetBrightness(this.brightness.CurrentValue + Math.Sign(val) * 10));
+            {
+                this.setBrightness(this.brightness.CurrentValue + Math.Sign(val) * 10);
+            });
         }
 
 #endregion
