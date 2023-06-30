@@ -174,6 +174,7 @@ namespace BrightnessControl.UI
                 lock (this.brightness)
                 {
                     this.brightness.SetBrightness(level);
+                    this.settingBrightness = false;
                     this.updateLook();
                 }
             }
