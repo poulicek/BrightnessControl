@@ -21,18 +21,31 @@ namespace BrightnessControl.UI
 
         public TrayIcon() : base("Brightness Control", "https://github.com/poulicek/BrightnessControl")
         {
-            this.input.MouseWheel += this.onMouseWheel;
+            
         }
 
         #region UI
 
         protected override void OnLoad(EventArgs e)
         {
+            if (!AppConfigHelper.Exists())
+            {
+                AppConfigHelper.Set("BrightnessUpKey", Keys.Control | Keys.Add);
+                AppConfigHelper.Set("BrightnessDownKey", Keys.Control | Keys.Subtract);
+            }
+
+            var keyBrightnessUp = new ActionKey(AppConfigHelper.Get<Keys>("BrightnessUpKey"));
+            var keyBrightnessDown = new ActionKey(AppConfigHelper.Get<Keys>("BrightnessDownKey"));
+
+            keyBrightnessUp.Pressed += this.onKeyBrightnessUpPressed;
+            keyBrightnessDown.Pressed += this.onKeyBrightnessDownPressed;
+
             this.brightness = new DisplayController();
             this.brightness.BrightnessChanged += this.onBrightnessChanged;
             this.brightnessValue = this.brightness.CurrentValue;
 
-            this.input.Listen(true, false);
+            this.input.MouseWheel += this.onMouseWheel;
+            this.input.Listen(true, true, keyBrightnessUp, keyBrightnessDown);
 
             base.OnLoad(e);
 
@@ -275,7 +288,26 @@ namespace BrightnessControl.UI
                 this.setBrightness(this.brightness.CurrentValue + Math.Sign(val) * 10);
             });
         }
+        private bool onKeyBrightnessUpPressed()
+        {
+            ThreadingHelper.DoAsync(() =>
+            {
+                this.setBrightness(this.brightness.CurrentValue + 10);
+            });
 
-#endregion
+            return false;
+        }
+
+        private bool onKeyBrightnessDownPressed()
+        {
+            ThreadingHelper.DoAsync(() =>
+            {
+                this.setBrightness(this.brightness.CurrentValue - 10);
+            });
+
+            return false;
+        }
+
+        #endregion
     }
 }
