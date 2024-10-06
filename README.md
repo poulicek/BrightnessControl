@@ -1,5 +1,4 @@
-[Windows Store](https://apps.microsoft.com/detail/9ppsvwj4z4qz) | [Download Portable](https://github.com/poulicek/BrightnessControl/releases) | [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=K89SHUV6EU49A&lc=CZ&item_name=Brightness%20Control&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
-)
+[Windows Store](https://apps.microsoft.com/detail/9ppsvwj4z4qz) | [Download Portable](https://github.com/poulicek/BrightnessControl/releases)
 
 # BrightnessControl
 
