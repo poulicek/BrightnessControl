@@ -28,24 +28,13 @@ namespace BrightnessControl.UI
 
         protected override void OnLoad(EventArgs e)
         {
-            if (!AppConfigHelper.Exists())
-            {
-                AppConfigHelper.Set("BrightnessUpKey", Keys.Control | Keys.Add);
-                AppConfigHelper.Set("BrightnessDownKey", Keys.Control | Keys.Subtract);
-            }
-
-            var keyBrightnessUp = new ActionKey(AppConfigHelper.Get<Keys>("BrightnessUpKey"));
-            var keyBrightnessDown = new ActionKey(AppConfigHelper.Get<Keys>("BrightnessDownKey"));
-
-            keyBrightnessUp.Pressed += this.onKeyBrightnessUpPressed;
-            keyBrightnessDown.Pressed += this.onKeyBrightnessDownPressed;
-
             this.brightness = new DisplayController();
             this.brightness.BrightnessChanged += this.onBrightnessChanged;
             this.brightnessValue = this.brightness.CurrentValue;
 
             this.input.MouseWheel += this.onMouseWheel;
-            this.input.Listen(true, true, keyBrightnessUp, keyBrightnessDown);
+
+            this.bindKeyboardShortcuts();
 
             base.OnLoad(e);
 
@@ -74,6 +63,27 @@ namespace BrightnessControl.UI
             }
 
             base.Dispose(isDisposing);
+        }
+
+
+        /// <summary>
+        /// Binds the keyboard keys contorlling the brightness
+        /// </summary>
+        private void bindKeyboardShortcuts()
+        {
+            if (!AppConfigHelper.Exists())
+            {
+                AppConfigHelper.Set("BrightnessUpKey", Keys.Control | Keys.Add);
+                AppConfigHelper.Set("BrightnessDownKey", Keys.Control | Keys.Subtract);
+            }
+
+            var keyBrightnessUp = new ActionKey(AppConfigHelper.Get<Keys>("BrightnessUpKey"));
+            var keyBrightnessDown = new ActionKey(AppConfigHelper.Get<Keys>("BrightnessDownKey"));
+
+            keyBrightnessUp.Pressed += this.onKeyBrightnessUpPressed;
+            keyBrightnessDown.Pressed += this.onKeyBrightnessDownPressed;
+
+            this.input.Listen(true, true, keyBrightnessUp, keyBrightnessDown);
         }
 
         protected override string getIconName(bool lightMode)
