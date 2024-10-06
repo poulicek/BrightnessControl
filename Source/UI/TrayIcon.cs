@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Deployment.Application;
 using System.Drawing;
+using System.Management;
 using System.Windows.Forms;
 using TrayToolkit.Helpers;
 using TrayToolkit.OS.Display;
 using TrayToolkit.OS.Input;
 using TrayToolkit.UI;
+using VolumeChangeDetector;
 
 namespace BrightnessControl.UI
 {
@@ -16,12 +18,12 @@ namespace BrightnessControl.UI
         private bool settingBrightness;
         private InputListener input = new InputListener();
         private DisplayController brightness;
+        private AudioNotificationClient volumeWatcher;
         private readonly Dictionary<int, MenuItem> levelButtons = new Dictionary<int, MenuItem>();
 
 
         public TrayIcon() : base("Brightness Control", "https://github.com/poulicek/BrightnessControl")
-        {
-            this.input.MouseWheel += this.onMouseWheel;
+        {            
         }
 
         #region UI
@@ -32,7 +34,10 @@ namespace BrightnessControl.UI
             this.brightness.BrightnessChanged += this.onBrightnessChanged;
             this.brightnessValue = this.brightness.CurrentValue;
 
+            this.input.MouseWheel += this.onMouseWheel;
             this.input.Listen(true, false);
+
+            this.hookVolumeEvents();
 
             base.OnLoad(e);
 
@@ -56,6 +61,7 @@ namespace BrightnessControl.UI
         {
             if (isDisposing)
             {
+                this.volumeWatcher?.Unregister();
                 this.brightness.Dispose();
                 this.input.Dispose();
             }
@@ -158,6 +164,17 @@ namespace BrightnessControl.UI
 
         #endregion
 
+        #region Hooks
+
+        private void hookVolumeEvents()
+        {
+            this.volumeWatcher?.Unregister();
+            this.volumeWatcher = new AudioNotificationClient();
+            this.volumeWatcher.RegisterForVolumeNotifications();
+        }
+
+        #endregion
+
         #region Actions
 
         /// <summary>
@@ -237,6 +254,12 @@ namespace BrightnessControl.UI
         #endregion
 
         #region Event Handlers
+
+        private void onVolumeChanged(object sender, EventArrivedEventArgs e)
+        {
+            if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
+                return;
+        }
 
         protected override void onTrayIconClick(object sender, MouseEventArgs e)
         {

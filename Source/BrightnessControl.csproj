@@ -62,6 +62,7 @@
     <Compile Include="UI\TrayIcon.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="AudioNotificationClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Icon.png" />
