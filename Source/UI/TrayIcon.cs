@@ -12,16 +12,29 @@ namespace BrightnessControl.UI
 {
     class TrayIcon : TrayIconBase
     {
+        private const int ICON_BOUNDS_TTL = 1000;
+        private const int HOVER_REFRESH_INTERVAL = 3000;
+
         private int brightnessValue;
-        private bool settingBrightness;
         private InputListener input = new InputListener();
         private DisplayController brightness;
         private readonly Dictionary<int, MenuItem> levelButtons = new Dictionary<int, MenuItem>();
 
+        // the brightness is written by a single worker which always takes the latest requested level
+        private readonly object applySync = new object();
+        private int? pendingLevel;
+        private int? writingLevel;
+        private bool isApplying;
+
+        private int lastRefreshTick;
+        private int iconBoundsTick;
+        private bool iconBoundsKnown;
+        private Rectangle iconBoundsCache;
+
 
         public TrayIcon() : base("Brightness Control", "https://github.com/poulicek/BrightnessControl")
         {
-            
+
         }
 
         #region UI
@@ -37,6 +50,10 @@ namespace BrightnessControl.UI
             this.bindKeyboardShortcuts();
 
             base.OnLoad(e);
+
+            // the value is cached, so it gets refreshed when the user shows interest in it
+            this.trayIcon.MouseMove += this.onTrayIconHover;
+            this.trayIcon.ContextMenu.Popup += this.onContextMenuPopup;
 
             // The following code doesn't work realiably. After publishing to store, the app shows the tooltip with every launch.
             //
@@ -58,7 +75,7 @@ namespace BrightnessControl.UI
         {
             if (isDisposing)
             {
-                this.brightness.Dispose();
+                this.brightness?.Dispose();
                 this.input.Dispose();
             }
 
@@ -131,12 +148,21 @@ namespace BrightnessControl.UI
         /// </summary>
         protected override void updateLook()
         {
-            this.brightnessValue = this.brightness?.CurrentValue ?? -1;
+            // the brightness gets applied (and changed from the outside) on other threads
+            if (this.InvokeRequired)
+            {
+                try { this.BeginInvoke((Action)this.updateLook); }
+                catch (ObjectDisposedException) { }
+                catch (InvalidOperationException) { }
+                return;
+            }
+
+            this.brightnessValue = this.brightness?.CurrentValue ?? 0;
 
             foreach (var btn in this.levelButtons)
                 btn.Value.Checked = btn.Key == this.brightnessValue;
 
-            if (this.brightnessValue >= 0)
+            if (this.brightness?.IsValueKnown == true)
                 this.setTitle($"Brightness Control - {brightnessValue}%");
 
             base.updateLook();
@@ -152,9 +178,8 @@ namespace BrightnessControl.UI
 
             var items = new List<MenuItem>(this.levelButtons.Values);
             items.Add(new MenuItem("-"));
-            items.Add(new MenuItem("Turn off screen", this.onScreenTurnOffClick));
-            items.Add(new MenuItem("-"));
-            items.AddRange(base.getContextMenuItems(false));
+            // the Store package starts with Windows by its manifest, so the option is offered only to the portable build
+            items.AddRange(base.getContextMenuItems());
 
             return items;
         }
@@ -184,36 +209,119 @@ namespace BrightnessControl.UI
         #region Actions
 
         /// <summary>
-        /// Setting the brightness level
+        /// Returns the level the brightness is heading to (including the changes not yet written to the display)
+        /// </summary>
+        private int getTargetBrightness()
+        {
+            lock (this.applySync)
+                return this.pendingLevel ?? this.writingLevel ?? this.brightness.CurrentValue;
+        }
+
+
+        /// <summary>
+        /// Requests the brightness level. The display is updated asynchronously.
         /// </summary>
         private void setBrightness(int level)
         {
-            try
+            this.requestBrightness(basis => level);
+        }
+
+
+        /// <summary>
+        /// Requests the brightness change relative to the level it is heading to
+        /// </summary>
+        private void changeBrightness(int delta)
+        {
+            // stepping from an unknown value would mean stepping from a made-up 0
+            if (!this.brightness.IsValueKnown && !this.brightness.Refresh())
+                return;
+
+            this.requestBrightness(basis => basis + delta);
+        }
+
+
+        /// <summary>
+        /// Stores the requested level and makes sure a worker is applying it
+        /// </summary>
+        private void requestBrightness(Func<int, int> calculateLevel)
+        {
+            lock (this.applySync)
             {
-                if (settingBrightness)
+                var basis = this.pendingLevel ?? this.writingLevel ?? this.brightness.CurrentValue;
+                this.pendingLevel = Math.Max(0, Math.Min(100, calculateLevel(basis)));
+
+                if (this.isApplying)
                     return;
 
-                this.settingBrightness = true;
-                lock (this.brightness)
+                this.isApplying = true;
+            }
+
+            ThreadingHelper.DoAsync(this.applyBrightness);
+        }
+
+
+        /// <summary>
+        /// Writes the requested levels to the display until there is nothing left to write
+        /// </summary>
+        private void applyBrightness()
+        {
+            try
+            {
+                while (true)
                 {
+                    int level;
+                    lock (this.applySync)
+                    {
+                        // leaving under the same lock that requests use to decide whether a worker is needed
+                        if (this.pendingLevel == null)
+                        {
+                            this.writingLevel = null;
+                            this.isApplying = false;
+                            return;
+                        }
+
+                        level = this.pendingLevel.Value;
+                        this.writingLevel = level;
+                        this.pendingLevel = null;
+                    }
+
                     this.brightness.SetBrightness(level);
-                    this.settingBrightness = false;
                     this.updateLook();
                 }
             }
-            finally
+            catch
             {
-                this.settingBrightness = false;
+                lock (this.applySync)
+                {
+                    this.writingLevel = null;
+                    this.isApplying = false;
+                }
+
+                throw;
             }
+        }
+
+
+        /// <summary>
+        /// Reads the brightness from the display and updates the look if it differs
+        /// </summary>
+        private void refreshFromDisplay()
+        {
+            lock (this.applySync)
+                if (this.isApplying)
+                    return;
+
+            if (this.brightness.Refresh() && this.brightness.CurrentValue != this.brightnessValue)
+                this.updateLook();
         }
 
 
         /// <summary>
         /// Switches the brightness
         /// </summary>
-            private void switchBrightness(bool forward, bool cycle = false)
+        private void switchBrightness(bool forward, bool cycle = false)
         {
-            var value = this.brightness.CurrentValue;
+            var value = this.getTargetBrightness();
             var levels = this.brightness.GetBrightnessLevels();
 
 
@@ -257,6 +365,28 @@ namespace BrightnessControl.UI
         }
 
 
+        /// <summary>
+        /// Returns the tray icon bounds. The shell is asked at most once per interval as the call is expensive.
+        /// </summary>
+        private Rectangle getIconBounds()
+        {
+            if (!this.hasFreshIconBounds())
+            {
+                this.iconBoundsCache = this.IconBounds;
+                this.iconBoundsTick = Environment.TickCount;
+                this.iconBoundsKnown = true;
+            }
+
+            return this.iconBoundsCache;
+        }
+
+
+        private bool hasFreshIconBounds()
+        {
+            return this.iconBoundsKnown && Environment.TickCount - this.iconBoundsTick <= ICON_BOUNDS_TTL;
+        }
+
+
         #endregion
 
         #region Event Handlers
@@ -274,11 +404,6 @@ namespace BrightnessControl.UI
             this.updateLook();
         }
 
-        private void onScreenTurnOffClick(object sender, EventArgs e)
-        {
-            this.brightness.TurnOff();
-        }
-
         private void onBrightnessLevel(object sender, EventArgs e)
         {
             var btn = (sender as MenuItem);
@@ -288,32 +413,47 @@ namespace BrightnessControl.UI
                 this.setBrightness(level);
         }
 
-        private void onMouseWheel(Point mousePosition, int val)
+        private void onContextMenuPopup(object sender, EventArgs e)
         {
-            if (!IconBounds.Contains(mousePosition))
+            this.refreshFromDisplay();
+        }
+
+        private void onTrayIconHover(object sender, MouseEventArgs e)
+        {
+            if (Environment.TickCount - this.lastRefreshTick < HOVER_REFRESH_INTERVAL)
                 return;
 
-            ThreadingHelper.DoAsync(() =>
-            {
-                this.setBrightness(this.brightness.CurrentValue + Math.Sign(val) * 10);
-            });
+            this.lastRefreshTick = Environment.TickCount;
+            ThreadingHelper.DoAsync(this.refreshFromDisplay);
         }
+
+        /// <summary>
+        /// Called by the mouse hook for every wheel event in the system, so it must return fast.
+        /// </summary>
+        private void onMouseWheel(Point mousePosition, int val)
+        {
+            // the wheel is clearly elsewhere
+            if (this.hasFreshIconBounds() && !this.iconBoundsCache.Contains(mousePosition))
+                return;
+
+            // asking the shell for the icon bounds outside of the hook
+            this.BeginInvoke((Action)(() =>
+            {
+                if (this.getIconBounds().Contains(mousePosition))
+                    ThreadingHelper.DoAsync(() => this.changeBrightness(Math.Sign(val) * 10));
+            }));
+        }
+
         private bool onKeyBrightnessUpPressed()
         {
-            ThreadingHelper.DoAsync(() =>
-            {
-                this.setBrightness(this.brightness.CurrentValue + 10);
-            });
+            ThreadingHelper.DoAsync(() => this.changeBrightness(10));
 
             return false;
         }
 
         private bool onKeyBrightnessDownPressed()
         {
-            ThreadingHelper.DoAsync(() =>
-            {
-                this.setBrightness(this.brightness.CurrentValue - 10);
-            });
+            ThreadingHelper.DoAsync(() => this.changeBrightness(-10));
 
             return false;
         }
