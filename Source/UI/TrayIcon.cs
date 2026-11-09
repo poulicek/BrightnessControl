@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Deployment.Application;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
+using BrightnessControl.Themes;
 using TrayToolkit.Helpers;
 using TrayToolkit.OS.Display;
 using TrayToolkit.OS.Input;
@@ -14,6 +18,7 @@ namespace BrightnessControl.UI
     {
         private const int ICON_BOUNDS_TTL = 1000;
         private const int HOVER_REFRESH_INTERVAL = 3000;
+        private const string PREVIOUS_THEME_KEY = "PreviousTheme";
 
         private int brightnessValue;
         private InputListener input = new InputListener();
@@ -30,6 +35,9 @@ namespace BrightnessControl.UI
         private int iconBoundsTick;
         private bool iconBoundsKnown;
         private Rectangle iconBoundsCache;
+
+        private MenuItem themesButton;
+        private int isApplyingTheme;
 
 
         public TrayIcon() : base("Brightness Control", "https://github.com/poulicek/BrightnessControl")
@@ -177,9 +185,17 @@ namespace BrightnessControl.UI
             this.loadBrightnessLevels();
 
             var items = new List<MenuItem>(this.levelButtons.Values);
+
+            // the themes are filled in when the menu opens
+            this.themesButton = new MenuItem("Themes");
             items.Add(new MenuItem("-"));
+
             // the Store package starts with Windows by its manifest, so the option is offered only to the portable build
             items.AddRange(base.getContextMenuItems());
+
+            // the themes share the section with About
+            var about = items.FindIndex(i => i.Text.StartsWith("About"));
+            items.Insert(about < 0 ? items.Count : about, this.themesButton);
 
             return items;
         }
@@ -366,6 +382,86 @@ namespace BrightnessControl.UI
 
 
         /// <summary>
+        /// Fills the themes submenu (called when the menu opens): the theme the user came from is the first item,
+        /// so it takes a single click to switch between two themes. The other themes follow in one list.
+        /// </summary>
+        private void refreshThemeButtons()
+        {
+            try
+            {
+                var current = ThemeManager.GetCurrentThemePath();
+                var themes = ThemeManager.GetUserThemes().Concat(ThemeManager.GetWindowsThemes()).ToList();
+
+                this.themesButton.MenuItems.Clear();
+
+                // the theme the user came from goes last (nearest to the mouse when the menu opens from the bottom)
+                var previousPath = AppConfigHelper.Get(PREVIOUS_THEME_KEY);
+                var previous = themes.FirstOrDefault(t => ThemeManager.IsSame(t.Path, previousPath) && !ThemeManager.IsSame(t.Path, current));
+                if (previous != null)
+                    themes.Remove(previous);
+
+                // the theme with unsaved changes is not a file the user could come back to
+                if (!string.IsNullOrEmpty(current) && !themes.Any(t => ThemeManager.IsSame(t.Path, current)))
+                    this.themesButton.MenuItems.Add(new MenuItem(ThemeManager.GetName(current).Replace("&", "&&")) { Checked = true, Enabled = false });
+
+                foreach (var theme in themes)
+                    this.themesButton.MenuItems.Add(new ThemeMenuItem(theme, this.onThemeClick) { Checked = ThemeManager.IsSame(theme.Path, current) });
+
+                if (previous != null)
+                {
+                    this.themesButton.MenuItems.Add(new MenuItem("-"));
+                    this.themesButton.MenuItems.Add(new ThemeMenuItem(previous, this.onThemeClick));
+                }
+            }
+            catch { }
+        }
+
+
+        /// <summary>
+        /// Applies the theme and remembers the one it replaces
+        /// </summary>
+        private void applyTheme(string path)
+        {
+            // applying takes seconds, only one at a time
+            if (Interlocked.CompareExchange(ref this.isApplyingTheme, 1, 0) != 0)
+                return;
+
+            var replacedTheme = ThemeManager.GetCurrentThemePath();
+
+            ThreadingHelper.DoAsync(() =>
+            {
+                try
+                {
+                    if (!ThemeManager.Apply(path))
+                    {
+                        BalloonTooltip.Show("Brightness Control", null, "The theme could not be applied.", 4000);
+                        return;
+                    }
+
+                    // the unsaved theme would be lost, so it can't be switched back to
+                    if (!string.IsNullOrEmpty(replacedTheme) && !ThemeManager.IsUnsaved(replacedTheme) && !ThemeManager.IsSame(replacedTheme, path))
+                        AppConfigHelper.Set(PREVIOUS_THEME_KEY, replacedTheme);
+                }
+                finally { Interlocked.Exchange(ref this.isApplyingTheme, 0); }
+            });
+        }
+
+
+        /// <summary>
+        /// Menu item holding the path of a theme
+        /// </summary>
+        private class ThemeMenuItem : MenuItem
+        {
+            public string ThemePath { get; }
+
+            public ThemeMenuItem(ThemeInfo theme, EventHandler onClick) : base(theme.Name.Replace("&", "&&"), onClick)
+            {
+                this.ThemePath = theme.Path;
+            }
+        }
+
+
+        /// <summary>
         /// Returns the tray icon bounds. The shell is asked at most once per interval as the call is expensive.
         /// </summary>
         private Rectangle getIconBounds()
@@ -415,7 +511,13 @@ namespace BrightnessControl.UI
 
         private void onContextMenuPopup(object sender, EventArgs e)
         {
+            this.refreshThemeButtons();
             this.refreshFromDisplay();
+        }
+
+        private void onThemeClick(object sender, EventArgs e)
+        {
+            this.applyTheme(((ThemeMenuItem)sender).ThemePath);
         }
 
         private void onTrayIconHover(object sender, MouseEventArgs e)
